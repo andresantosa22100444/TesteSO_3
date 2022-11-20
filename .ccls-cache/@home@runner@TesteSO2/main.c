@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
   puts("Quantas iteracoes?");
   scanf(" %d", &numeroDeIteracoes);
 
-  puts("Qual o numero magico??");
+  puts("Qual o numero magico?");
   scanf(" %d", &nrMagico);
 
   if (numeroDeIteracoes > 1000 && numeroDeIteracoes < 5000) {
@@ -116,16 +116,40 @@ int main(int argc, char **argv) {
   } else if (processos == 0) {
     processos = 1;
   }
+  processos = 4;
   pid_t pids[processos];
   int status = 0;
   long t_ini = 0;
-  long t_fim = (numeroDeIteracoes / processos - 1);
+  long t_div = (numeroDeIteracoes / processos);
+  long t_fim = t_div;
   clock_t start, end, t_processo;
   double execution_time, finalExcTime;
 
   start = clock();
+  if (processos == 3) {
+    t_div ++;
+  }
 
-  for (int p = 0; p < processos; ++p) {
+  for (int p = 0; p < processos; p++) {
+    int pid = fork();
+    long temp;
+    if (pid < 0) {
+      exit(EXIT_FAILURE);
+    } else if (pid > 0) {
+      /* Parent process */
+      wait(NULL);
+    } else {
+      /* Child process */
+      //printf("Processo nr%d\n", p);
+      *memory += fazCalculo(t_ini, t_fim, nrMagico);
+
+      exit(EXIT_SUCCESS);
+    }
+    t_ini = t_fim;
+    t_fim += t_div;
+  }
+
+  /*for (int p = 0; p < processos; ++p) {
     t_processo = clock();
     if ((pids[p] = fork()) < 0) {
       perror("fork");
@@ -134,25 +158,11 @@ int main(int argc, char **argv) {
       printf("Processo %d começou\n", p);
       t_processo = clock();
       *memory += fazCalculo(t_ini, t_fim, nrMagico);
-      sleep(1);
 
       exit(0);
     }
-  }
-  pid_t pid;
-  while (processos != 0) {
-    wait(NULL);
-    t_processo = clock() - t_processo;
-    execution_time = ((double)(t_processo)) / CLOCKS_PER_SEC;
-    printf("Child with PID %ld processo %d execution time %f.\n",
-           (long)pid, processos, execution_time);
+  }*/
 
-    --processos;
-  }
-
-  start = clock() - start;
-  finalExcTime = ((double)(start)) / CLOCKS_PER_SEC;
-  printf("Tempo total: %f\n", finalExcTime);
   printf("Valor calculado: %ld\n", *memory);
 
   *memory = shm_unlink("/shm");
