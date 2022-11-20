@@ -66,6 +66,7 @@ long fazCalculo(long it_inicio, long it_fim, long num_magico) {
     double result = sqrtf((x * x) + (y * y));
     if (result < 1)
       calculo += num_magico;
+    // printf("Iteração %ld calculo =%f\n", i, calculo);
   }
 
   return calculo;
@@ -105,41 +106,38 @@ int main(int argc, char **argv) {
   puts("Qual o numero magico?");
   scanf(" %d", &nrMagico);
 
-  if (numeroDeIteracoes > 1000 && numeroDeIteracoes < 5000) {
+  if (numeroDeIteracoes > 2350000  && numeroDeIteracoes < 3500000) {
     processos = 2;
   }
-  if (numeroDeIteracoes > 5000 && numeroDeIteracoes < 10000) {
+  if (numeroDeIteracoes >= 3500000 && numeroDeIteracoes <= 3650000) {
     processos = 3;
   }
-  if (numeroDeIteracoes > 10000) {
+  if (numeroDeIteracoes > 3650000) {
     processos = 4;
   } else if (processos == 0) {
     processos = 1;
   }
-  processos = 4;
+  // processos = 4;
   pid_t pids[processos];
   int status = 0;
   long t_ini = 0;
   long t_div = (numeroDeIteracoes / processos);
   long t_fim = t_div;
-  clock_t start, end, t_processo;
-  double execution_time, finalExcTime;
+  time_t begin = time(NULL);
 
-  start = clock();
-  if (processos == 3) {
-    t_div ++;
-  }
+
 
   for (int p = 0; p < processos; p++) {
-    int pid = fork();
+    pid_t cur_pid = fork();
     long temp;
-    if (pid < 0) {
+    if (cur_pid < 0) {
       exit(EXIT_FAILURE);
-    } else if (pid > 0) {
+    } else if (cur_pid > 0) {
       /* Parent process */
-      wait(NULL);
+
     } else {
       /* Child process */
+      pids[p] = cur_pid;
       //printf("Processo nr%d\n", p);
       *memory += fazCalculo(t_ini, t_fim, nrMagico);
 
@@ -147,6 +145,10 @@ int main(int argc, char **argv) {
     }
     t_ini = t_fim;
     t_fim += t_div;
+  }
+
+  for (int i = 0; i < processos; i++) {
+    wait(&pids[i]);
   }
 
   /*for (int p = 0; p < processos; ++p) {
@@ -164,6 +166,8 @@ int main(int argc, char **argv) {
   }*/
 
   printf("Valor calculado: %ld\n", *memory);
+  time_t end = time(NULL);
+  // printf("The elapsed time is %ld seconds", (end - begin));
 
   *memory = shm_unlink("/shm");
   return 0;
