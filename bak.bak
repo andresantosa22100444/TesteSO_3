@@ -1,0 +1,101 @@
+#include <pthread.h>
+#include <semaphore.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#define NUM_THREADS 6
+
+typedef struct {
+  char tipo;
+  int tempo;
+} Peca;
+
+int valvulas, cilindros, caixas, radiadores, rodas, carrocarias, motores,
+    automoveis;
+sem_t mutex_valvulas, mutex_cilindros, mutex_caixas, mutex_radiadores,
+    mutex_rodas, mutex_carrocarias, mutex_motores, mutex_automoveis;
+
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
+void dormida(long tempo) {
+  long tmp = tempo * 10;
+
+  struct timespec ts;
+
+  ts.tv_sec = tmp / 1000;
+
+  ts.tv_nsec = (tmp - (ts.tv_sec * 1000)) * 1000000;
+
+  nanosleep(&ts, NULL);
+}
+
+void *produzir(void *arg) {
+  // pthread_mutex_lock(&lock);
+
+  Peca *p = arg;
+
+  printf("tipo: %c\n", p->tipo);
+  dormida(p->tempo);
+  printf("Produziu %c\n", p->tipo);
+
+  // pthread_mutex_unlock(&lock);
+
+  pthread_exit(NULL);
+}
+
+int main(int argc, char **argv) {
+  pthread_t thread[NUM_THREADS];
+  while (1) {
+    char tipo;
+    int tempo;
+
+    // printf("Insira comando:\n");
+    scanf(" %c %d", &tipo, &tempo);
+    // printf("Tipo: %c\nTempo: %d\n", tipo, tempo);
+
+    if ((tipo == 'e' || tipo == 'j' || tipo == 'p' || tipo == 'c' ||
+         tipo == 'u' || tipo == 't' || tipo == 'o' || tipo == 'v' ||
+         tipo == 'l' || tipo == 'x' || tipo == 'r') &&
+        tempo > 0 && tempo < 999) {
+
+      Peca p = {tipo, tempo};
+      int rc;
+
+      switch (p.tipo) {
+      case 'e':
+        pthread_create(&thread[1], NULL, produzir, &p);
+        break;
+      case 'j':
+        pthread_create(&thread[2], NULL, produzir, &p);
+        break;
+      case 'p':
+        pthread_create(&thread[3], NULL, produzir, &p);
+        break;
+      case 'c':
+        pthread_create(&thread[4], NULL, produzir, &p);
+        break;
+      case 'u':
+        pthread_create(&thread[5], NULL, produzir, &p);
+        break;
+      case 't':
+        pthread_create(&thread[6], NULL, produzir, &p);
+        break;
+      }
+      if (rc) {
+        printf("Error:unable to create thread, %d", rc);
+      }
+
+    }
+
+    else if (tipo == 'q') {
+
+      return 0;
+    }
+
+    else {
+      printf("Comando invalido\n");
+    }
+  }
+  pthread_exit(NULL);
+  return 0;
+}

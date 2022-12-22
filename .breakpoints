@@ -2,10 +2,16 @@
   "files": {
     "main.c": [
       {
-        "id": "b607cf4a-c6db-4381-a275-a54de4f8dbcb",
-        "line": 130,
-        "version": 3806,
-        "index": 4112
+        "id": "1610ac5a-60f2-478c-b7a2-774672830f37",
+        "line": 1,
+        "version": 1647,
+        "index": 0
+      },
+      {
+        "id": "88bfe30c-3490-47be-ba88-c7bb550c766f",
+        "line": 1,
+        "version": 1647,
+        "index": 0
       }
     ]
   }

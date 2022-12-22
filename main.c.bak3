@@ -1,0 +1,63 @@
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+typedef struct {
+  char tipo;
+  int tempo;
+} Peca;
+
+void dormida(long tempo) {
+
+  long tmp = tempo * 10;
+
+  struct timespec ts;
+
+  ts.tv_sec = tmp / 1000;
+
+  ts.tv_nsec = (tmp - (ts.tv_sec * 1000)) * 1000000;
+
+  nanosleep(&ts, NULL);
+}
+
+void *produzir(void *arg) {
+  Peca *p = (Peca *)arg;
+
+  dormida(p->tempo);
+  puts(&p->tipo);
+  printf("Produziu %c\n", p->tipo);
+
+  pthread_exit(NULL);
+}
+
+int main(int argc, char **argv) {
+
+  while (1) {
+    char tipo;
+    int tempo;
+    // printf("Insira comando:\n");
+    scanf("%c%d", &tipo, &tempo);
+    // printf("Tipo: %c\nTempo: %d\n", tipo, tempo);
+    if (tipo == 'q') {
+      dormida(tempo);
+      break;
+    }
+    if (tipo == 'e' || tipo == 'j' || tipo == 'p' || tipo == 'c' ||
+        tipo == 'u' || tipo == 't' || tipo == 'o' || tipo == 'v' ||
+        tipo == 'l' || tipo == 'x' || tipo == 'r' || tipo == 'q') {
+
+      if (tempo > 0 && tempo <= 999) {
+        Peca p = {tipo, tempo};
+
+        pthread_t thread;
+        pthread_create(&thread, NULL, produzir, &p);
+      } else {
+        puts("Comando invalido");
+      }
+    } else {
+      puts("Comando invalido");
+    }
+  }
+
+  return 0;
+}

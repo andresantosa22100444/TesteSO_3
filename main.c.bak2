@@ -1,0 +1,76 @@
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#define NUM_COMPONENTS 13
+
+typedef struct {
+  char tipo;
+  int tempo;
+} Peca;
+
+pthread_mutex_t mutex;
+int components[NUM_COMPONENTS];
+int cars;
+
+void dormida(long tempo) {
+  long tmp = tempo * 10;
+
+  struct timespec ts;
+
+  ts.tv_sec = tmp / 1000;
+
+  ts.tv_nsec = (tmp - (ts.tv_sec * 1000)) * 1000000;
+
+  nanosleep(&ts, NULL);
+}
+
+void *produzir(void *arg) {
+  Peca *p = (Peca *)arg;
+
+  dormida(p->tempo);
+  printf("Produziu %c\n", p->tipo);
+
+  // Update component count
+  pthread_mutex_lock(&mutex);
+  components[p->tipo - 'a']++;
+  pthread_mutex_unlock(&mutex);
+
+  // Check if all components are available to assemble a car
+  pthread_mutex_lock(&mutex);
+  int cilindros = components['c' - 'a'];
+  int caixa = components['x' - 'a'];
+  int radiadores = components['r' - 'a'];
+  int valvulas = components['v' - 'a'];
+  int rodas = components['o' - 'a'];
+  int carrocaria = components['a' - 'a'];
+  pthread_mutex_unlock(&mutex);
+
+  if (cilindros >= 4 && caixa >= 1 && radiadores >= 2 && valvulas >= 16 &&
+      rodas >= 4 && carrocaria >= 1) {
+    pthread_t thread;
+    pthread_create(&thread, NULL, montar_carro, NULL);
+  }
+
+  pthread_exit(NULL);
+}
+
+void *montar_carro(void *arg) {
+  // Wait for component production threads to complete
+  pthread_join(threads['c' - 'a'], NULL);
+  pthread_join(threads['x' - 'a'], NULL);
+  pthread_join(threads['r' - 'a'], NULL);
+  pthread_join(threads['v' - 'a'], NULL);
+  pthread_join(threads['o' - 'a'], NULL);
+  pthread_join(threads['a' - 'a'], NULL);
+
+  // Update component counts and car count
+  pthread_mutex_lock(&mutex);
+  components['c' - 'a'] -= 4;
+  components['x' - 'a'] -= 1;
+  components['r' - 'a'] -= 2;
+  components['v' - 'a'] -= 16;
+  components['o' - 'a'] -= 4;
+  components['a' - 'a'] -= 1;
+  cars++;
+  pthread_
