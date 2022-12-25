@@ -23,6 +23,7 @@ typedef struct {
   int sem;
 } Peca;
 
+#define BUFFER_SIZE 100
 
 typedef struct {
   Peca buffer[BUFFER_SIZE];
@@ -31,7 +32,6 @@ typedef struct {
   int tamanho;
   int quantidade;
 } BufferCircular;
-
 BufferCircular buff_escape, buff_janela, buff_porta, buff_chassi, buff_pneus,
     buff_jantes, buff_porcas, buff_valvulas, buff_cilindros, buff_caixa,
     buff_radiadores, buff_queue;
@@ -96,102 +96,102 @@ void *produzir(void *arg) {
 
   // printf("tempo: %d\n Peca %c\n", p->tempo, p->tipo);
   // printf("Thread %d\n", p->sem);
+  dormida(p->tempo);
   printf("Produziu %c \n", p->tipo);
-  // dormida(p->tempo);
   pthread_exit(NULL);
 }
 
 void fabrica() {
+  while (!bufferVazio(&buff_queue)) {
 
-  Peca p;
-  switch (p.tipo) {
-  case 'e':
-    puts("ola");
-    p = removerPeca(&buff_escape);
-    sem_wait(sem_escape);
-    dormida(p.tempo);
-    pthread_create(&tfabrica[1], NULL, produzir, &p);
-    sem_post(sem_escape);
+    Peca p = removerPeca(&buff_queue);
+    switch (p.tipo) {
+    case 'e':
+      p = removerPeca(&buff_escape);
+      sem_wait(sem_janela);
+      // dormida(p.tempo);
+      pthread_create(&tfabrica[1], NULL, produzir, &p);
+      sem_post(sem_janela);
 
-    break;
-  case 'j':
-    p = removerPeca(&buff_janela);
-    sem_wait(sem_janela);
-    dormida(p.tempo);
-    pthread_create(&tfabrica[2], NULL, produzir, &p);
-    sem_post(sem_janela);
-    break;
-  case 'p':
-    p = removerPeca(&buff_porta);
-    sem_wait(sem_porta);
-    dormida(p.tempo);
-    pthread_create(&tfabrica[3], NULL, produzir, &p);
-    sem_post(sem_porta);
-    break;
-  case 'c':
-    p = removerPeca(&buff_chassi);
-    sem_wait(sem_chassi);
-    dormida(p.tempo);
-    pthread_create(&tfabrica[4], NULL, produzir, &p);
-    sem_post(sem_chassi);
-    break;
-  case 'u':
-    p = removerPeca(&buff_pneus);
-    sem_wait(sem_pneus);
-    dormida(p.tempo);
-    pthread_create(&tfabrica[5], NULL, produzir, &p);
-    sem_post(sem_pneus);
-    break;
-  case 't':
-    p = removerPeca(&buff_jantes);
-    sem_wait(sem_jantes);
-    dormida(p.tempo);
-    pthread_create(&tfabrica[6], NULL, produzir, &p);
-    sem_post(sem_jantes);
-    break;
-  case 'o':
-    p = removerPeca(&buff_porcas);
-    sem_wait(sem_porcas);
-    dormida(p.tempo);
-    pthread_create(&tfabrica[7], NULL, produzir, &p);
-    sem_post(sem_porcas);
-    break;
-  case 'v':
-    p = removerPeca(&buff_valvulas);
-    sem_wait(sem_valvulas);
-    dormida(p.tempo);
-    pthread_create(&tfabrica[8], NULL, produzir, &p);
-    sem_post(sem_valvulas);
-    break;
-  case 'l':
-    p = removerPeca(&buff_cilindros);
-    sem_wait(sem_cilindros);
-    dormida(p.tempo);
-    pthread_create(&tfabrica[9], NULL, produzir, &p);
-    sem_post(sem_cilindros);
-    break;
-  case 'x':
-    p = removerPeca(&buff_caixa);
-    sem_wait(sem_caixa);
-    dormida(p.tempo);
-    pthread_create(&tfabrica[10], NULL, produzir, &p);
-    sem_post(sem_caixa);
-    break;
-  case 'r':
-    p = removerPeca(&buff_radiadores);
-    sem_wait(sem_radiadores);
-    dormida(p.tempo);
-    pthread_create(&tfabrica[11], NULL, produzir, &p);
-    sem_post(sem_radiadores);
+      break;
+    case 'j':
+      p = removerPeca(&buff_janela);
+      sem_wait(sem_janela);
+      // dormida(p.tempo);
+      pthread_create(&tfabrica[2], NULL, produzir, &p);
+      sem_post(sem_janela);
+      break;
+    case 'p':
+      p = removerPeca(&buff_porta);
+      sem_wait(sem_porta);
+      // dormida(p.tempo);
+      pthread_create(&tfabrica[3], NULL, produzir, &p);
+      sem_post(sem_porta);
+      break;
+    case 'c':
+      p = removerPeca(&buff_chassi);
+      sem_wait(sem_chassi);
+      // dormida(p.tempo);
+      pthread_create(&tfabrica[4], NULL, produzir, &p);
+      sem_post(sem_chassi);
+      break;
+    case 'u':
+      p = removerPeca(&buff_pneus);
+      sem_wait(sem_pneus);
+      // dormida(p.tempo);
+      pthread_create(&tfabrica[5], NULL, produzir, &p);
+      sem_post(sem_pneus);
+      break;
+    case 't':
+      p = removerPeca(&buff_jantes);
+      sem_wait(sem_jantes);
+      // dormida(p.tempo);
+      pthread_create(&tfabrica[6], NULL, produzir, &p);
+      sem_post(sem_jantes);
+      break;
+    case 'o':
+      p = removerPeca(&buff_porcas);
+      sem_wait(sem_porcas);
+      // dormida(p.tempo);
+      pthread_create(&tfabrica[7], NULL, produzir, &p);
+      sem_post(sem_porcas);
+      break;
+    case 'v':
+      p = removerPeca(&buff_valvulas);
+      sem_wait(sem_valvulas);
+      // dormida(p.tempo);
+      pthread_create(&tfabrica[8], NULL, produzir, &p);
+      sem_post(sem_valvulas);
+      break;
+    case 'l':
+      p = removerPeca(&buff_cilindros);
+      sem_wait(sem_cilindros);
+      // dormida(p.tempo);
+      pthread_create(&tfabrica[9], NULL, produzir, &p);
+      sem_post(sem_cilindros);
+      break;
+    case 'x':
+      p = removerPeca(&buff_caixa);
+      sem_wait(sem_caixa);
+      // dormida(p.tempo);
+      pthread_create(&tfabrica[10], NULL, produzir, &p);
+      sem_post(sem_caixa);
+      break;
+    case 'r':
+      p = removerPeca(&buff_radiadores);
+      sem_wait(sem_radiadores);
+      // dormida(p.tempo);
+      pthread_create(&tfabrica[11], NULL, produzir, &p);
+      sem_post(sem_radiadores);
 
-    break;
-  default:
-    break;
+      break;
+    default:
+      break;
+    }
   }
 }
 
 void pecaBuff(Peca p) {
-
   switch (p.tipo) {
   case 'e':
     inserirPeca(&buff_escape, p);
@@ -281,6 +281,7 @@ int main(int argc, char **argv) {
   int tempo;
 
   do {
+    fflush(stdout);
     fflush(stdin);
     scanf(" %c %d", &tipo, &tempo);
     // printf("Tipo: %c\nTempo: %d\n", tipo, tempo);
@@ -291,7 +292,7 @@ int main(int argc, char **argv) {
 
       Peca agrs = (Peca){tipo, tempo};
       inserirPeca(&buff_queue, agrs);
-      pecaBuff(agrs);
+      // pecaBuff(agrs);
 
       fabrica();
 
